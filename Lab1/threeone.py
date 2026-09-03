@@ -1,6 +1,5 @@
 # Exercise 3.1
 
-U = {i for i in range(1,31)}
 
 def subset_maker(st):
 
@@ -112,7 +111,6 @@ def subset_maker(st):
     
     return solutions, casea_solution, caseb_solution
 
-
 def divideby360(subset):
     if len(subset) != 7:
         return False
@@ -141,6 +139,3 @@ def sumto105(subset):
         return True
 
     return False
-
-solution, casea, caseb = subset_maker(U)
-print(f"{len(solution)}, {len(casea)}, {len(caseb)}")
