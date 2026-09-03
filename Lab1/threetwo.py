@@ -1,13 +1,12 @@
-import time
-
-
 U = {i for i in range(1, 61)}
 
 def adv_subset_maker(st):
-    # Make the final solution subsets into set S and D(S)
-    solutions = set()
+    # Make the final solution number and D Subsets into S and D(S)
+    solutions = 0
     D_set = set()
     sum_table = dict()
+    lex_min = None
+    lex_max = None
     # Create even and odd lists
     even = list()
     odd = list()
@@ -67,10 +66,10 @@ def adv_subset_maker(st):
                                  sum_table[odd_sum][group] = [] 
                             sum_table[odd_sum][group].append([odd1, odd2, odd3, odd4, odd5, odd6, odd_product])
 
-    print(len(sum_table))
 
-    t0 = time.time()
-    count = 0
+   
+
+
     # GENERATE A LIST OF USABLE EVEN_SUMS
     for even1 in even:
             even_sum = 0
@@ -138,10 +137,6 @@ def adv_subset_maker(st):
                                     needed_5 = max(0, 2 - products_had(even_product, 5))
                                     needed_7 = max(0, 1 - products_had(even_product, 7))
 
-
-                                    count += 1
-                                    if count % 10000 == 0:
-                                        print(f"{count} evens-combos checked, {time.time()-t0:.1f}s elapsed, {len(solutions)} solutions.")
                                     # 6 Odds Sums = 330 - 5 Even Sums, Automatically turns the "Add to 330" condition true
                                     odd_sum = 330 - even_sum
 
@@ -152,18 +147,28 @@ def adv_subset_maker(st):
                                     # LOGIC:
                                     # Unpack one list at a time, add them together with the evens, check if they 
                                     # are divisible by (2^6 * 3^4 * 5^2 * 7)
-
-                                    for product_group in sum_table[odd_sum]:
+                                    
+                                    for product_group in sum_table[odd_sum]:   
                                         if product_group[0] >= needed_3 and product_group[1] >= needed_5 and product_group[2] >= needed_7:
-                                            for odd_list in sum_table[odd_sum][product_group]:
-                                                possible_solution = tuple(sorted([*odd_list[:-1], *evens[:-1]]))
-                                                solutions.add(possible_solution)
-                                                D_set.add(abs(even_sum - odd_sum))
+                                            max_cand_odd = sum_table[odd_sum][product_group][-1]
+                                            min_cand_odd = sum_table[odd_sum][product_group][0]
+
+                                            max_candidate = list(sorted(max_cand_odd[:-1] + evens[:-1]))
+                                            min_candidate = list(sorted(min_cand_odd[:-1] + evens[:-1]))
+
+                                            if lex_min == None or lex_min > min_candidate:
+                                                    print(f"NEW MIN FOUND: Changing {lex_min} to {min_candidate}")
+                                                    lex_min = sorted(min_candidate)
+                                            if lex_max == None or lex_max < max_candidate:
+                                                    print(f"NEW MAX FOUND: Changing {lex_max} to {max_candidate}")
+                                                    lex_max = sorted(max_candidate)
+                                                
+                                            solutions += len(sum_table[odd_sum][product_group])
+                                            D_set.add(abs(even_sum - odd_sum))
     
-    solutions = tuple(sorted(solutions))
     D_set = tuple(sorted(D_set))
 
-    return solutions, D_set
+    return solutions, D_set, lex_min, lex_max
 
 def divisiblebynumber(number):
     return number % (2**6 * 3**3 * 5**2 * 7) == 0
@@ -178,7 +183,6 @@ def products_had(product, number):
     return had
 
 
-solutions, D_set = adv_subset_maker(U)
-#smallest_dsum,largest_dsum = D_set[0], D_set[-1]
-#lex_small, lex_large = solutions[0], solutions[-1]
-print(len(solutions)) #smallest_dsum, largest_dsum, lex_small, lex_large)
+solutions, D_set, lex_min, lex_max = adv_subset_maker(U)
+smallest_dsum,largest_dsum = D_set[0], D_set[-1]
+print(solutions, smallest_dsum, largest_dsum, lex_min, lex_max)
