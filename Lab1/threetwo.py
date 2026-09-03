@@ -1,4 +1,4 @@
-
+import time
 
 
 U = {i for i in range(1, 61)}
@@ -47,7 +47,7 @@ def adv_subset_maker(st):
                             if odd1 >= odd6 or odd2 >= odd6 or odd3 >= odd6 or odd4 >= odd6 or odd5 >= odd6:
                                 continue
                             odd_sum = odd1 + odd2 + odd3 + odd4 + odd5 + odd6
-
+                            odd_product = odd1 * odd2 * odd3 * odd4 * odd5 * odd6
                             # Minimum Even_sum = 2 + 4 + 6 + 8 + 10  = 30
                             # Maximum Even_sum = 60 + 58 + 56 + 54 + 52 = 280
                             # That means:
@@ -56,14 +56,22 @@ def adv_subset_maker(st):
                             # We discard anything else
                             if odd_sum < 50 or odd_sum > 300:
                                continue
+
+                            group = (min(products_had(odd_product, 3), 3), 
+                                   min(products_had(odd_product, 5), 2), 
+                                   min(products_had(odd_product, 7), 1))
+                            
                             if odd_sum not in sum_table:
-                                sum_table[odd_sum] = []
-                            sum_table[odd_sum].append([odd1, odd2, odd3, odd4, odd5, odd6])
+                                sum_table[odd_sum] = {}
+                            if group not in sum_table[odd_sum]:
+                                 sum_table[odd_sum][group] = [] 
+                            sum_table[odd_sum][group].append([odd1, odd2, odd3, odd4, odd5, odd6, odd_product])
 
-    
+    print(len(sum_table))
 
-    # There are 5 even numbers, so we look for the number 330 - even_sum to find odd sum
-
+    t0 = time.time()
+    count = 0
+    # GENERATE A LIST OF USABLE EVEN_SUMS
     for even1 in even:
             even_sum = 0
             for even2 in even:
@@ -72,70 +80,105 @@ def adv_subset_maker(st):
                 for even3 in even:
                         if even1 >= even3 or even3 >= even2:
                               continue
+                        # Stop here because three fixed points is a very middle starting point. 
+                        # Also, if u hate, go away
+                        # Check to see if the smallest/largest possible even4 and even5 are too big or 
+                        # too small, and continue/break early to avoid unnecessary calculations
+                        
+                        partial_sum = even1 + even2 + even3
+                        #partial_product = even1 * even2 * even3
+
+                        if 330 - (partial_sum + (even3 + 2) + (even3 + 4)) > 300:
+                            # Even3 is too small, won't give a small enough oddsum. 
+                            continue
+                        
+                        if 330 - (partial_sum + even[-2] + even[-1]) < 50: #or (partial_product * even[-2] * even[-1]) % 2**6 != 0:
+                            # Even3 is too large, won't give a large enough oddsum.
+                            # if Even3 is too large, everything that comes from even4 and even5 is useless. 
+
+                            # OR
+
+                            # the best case for E3 doesn't give the required amount of 2**6, e3 is useless
+                            break
+
+                        
+
+                        # NOTE: only works for this assignment SOLELY bc we know 
+                        # even and odd are spaced by 2 here. 
+                        # that's why we can afford to do even3+2 or +4
+
                         for even4 in even:
                                 if even1 >= even4 or even2 >= even4 or even3 >= even4:
                                       continue
+
+                                # Stop here as well to make sure to skip EVEN more unusable sums.
+                                partial_sum = even1 + even2 + even3 + even4
+                                partial_sum = even1 + even2 + even3 + even4
+                                if 330 - (partial_sum + (even4 + 2)) > 300: 
+                                    continue
+                                if 330 - (partial_sum + even[-1]) < 50:
+                                    break
+
                                 for even5 in even:
                                     if even1 >= even5 or even2 >= even5 or even3 >= even5 or even4 >= even5:
                                         continue
                                     even_sum = even1 + even2 + even3 + even4 + even5
-                                    evens = [even1, even2, even3, even4, even5]
-    
+                                    even_product = even1 * even2 * even3 * even4 * even5
+                                    if even_product % 2**6 != 0:
+                                        continue 
+                                    evens = [even1, even2, even3, even4, even5, even_product]
+
+                                    # Omptimization Attempt 3:
+                                    # oddlist reducer
+
+                                    
+                                    
+
+                                    needed_3 = max(0, 3 - products_had(even_product, 3))
+                                    needed_5 = max(0, 2 - products_had(even_product, 5))
+                                    needed_7 = max(0, 1 - products_had(even_product, 7))
+
+
+                                    count += 1
+                                    if count % 10000 == 0:
+                                        print(f"{count} evens-combos checked, {time.time()-t0:.1f}s elapsed, {len(solutions)} solutions.")
                                     # 6 Odds Sums = 330 - 5 Even Sums, Automatically turns the "Add to 330" condition true
                                     odd_sum = 330 - even_sum
 
                                     # Check to see if the numbers fits the condition (Odd sums should exist in the lookup table)
                                     if odd_sum not in sum_table:
                                         continue
-
+                                    
                                     # LOGIC:
                                     # Unpack one list at a time, add them together with the evens, check if they 
                                     # are divisible by (2^6 * 3^4 * 5^2 * 7)
 
-                                    for odd_list in sum_table[odd_sum]:
-                                            possible_solution = tuple(sorted([*odd_list, *evens]))
-                                            if divisiblebynumber(possible_solution):
-                                                    solutions.add(possible_solution)
-                                                    D_set.add(abs(even_sum - odd_sum))
+                                    for product_group in sum_table[odd_sum]:
+                                        if product_group[0] >= needed_3 and product_group[1] >= needed_5 and product_group[2] >= needed_7:
+                                            for odd_list in sum_table[odd_sum][product_group]:
+                                                possible_solution = tuple(sorted([*odd_list[:-1], *evens[:-1]]))
+                                                solutions.add(possible_solution)
+                                                D_set.add(abs(even_sum - odd_sum))
     
     solutions = tuple(sorted(solutions))
     D_set = tuple(sorted(D_set))
 
     return solutions, D_set
 
+def divisiblebynumber(number):
+    return number % (2**6 * 3**3 * 5**2 * 7) == 0
 
-def divisiblebynumber(subset):
-    if len(subset) != 11:
-            return False
 
-    term = 1
+def products_had(product, number):
+    had = 0
+    while product % number == 0:
+        had += 1
+        product = product//number
 
-    for number in subset:
-        term *= number
+    return had
 
-    num = (2**6 * 3**3 * 5**2 * 7)
-
-    if term % num == 0:
-        return True
-
-    return False
-
-# Unused
-# def sumequals330(subset):
-    if len(subset) != 11:
-          return False
-
-    sum = 0
-
-    for number in subset:
-            sum += number
-    
-    if sum == 330:
-            return True
-    
-    return False
 
 solutions, D_set = adv_subset_maker(U)
-smallest_dsum,largest_dsum = D_set[0], D_set[-1]
-lex_small, lex_large = solutions[0], solutions[-1]
-print(len(solutions), smallest_dsum, largest_dsum, lex_small, lex_large)
+#smallest_dsum,largest_dsum = D_set[0], D_set[-1]
+#lex_small, lex_large = solutions[0], solutions[-1]
+print(len(solutions)) #smallest_dsum, largest_dsum, lex_small, lex_large)
