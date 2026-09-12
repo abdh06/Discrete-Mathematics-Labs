@@ -235,25 +235,25 @@ def adv_subset_maker(st):
                     # Check to see if the smallest/largest possible even4 and even5 are too big or 
                     # too small, and continue/break early to avoid unnecessary calculations
                         
-                    partial_sum = even1 + even2 + even3
+                   # partial_sum = even1 + even2 + even3
 
-                    if 330 - (partial_sum + (even3 + 2) + (even3 + 4)) > 300: # Yes, this is hardcoded.
-                        continue # Even3 is too small, won't give a small enough oddsum. 
+                    #if 330 - (partial_sum + (even3 + 2) + (even3 + 4)) > 300: # Yes, this is hardcoded.
+                    #    continue # Even3 is too small, won't give a small enough oddsum. 
                         
-                    if 330 - (partial_sum + even[-2] + even[-1]) < 50:
-                        break # Even3 is too large, will give a too small odd_sum
+                    #if 330 - (partial_sum + even[-2] + even[-1]) < 50:
+                    #    break # Even3 is too large, will give a too small odd_sum
 
                     for even4 in even:
                             if even1 >= even4 or even2 >= even4 or even3 >= even4:
                                 continue
 
                             # Pruning Part 2.
-                            partial_sum = even1 + even2 + even3 + even4
+                     #       partial_sum = even1 + even2 + even3 + even4
 
-                            if 330 - (partial_sum + (even4 + 2)) > 300: 
-                                continue
-                            if 330 - (partial_sum + even[-1]) < 50:
-                                break
+                     #       if 330 - (partial_sum + (even4 + 2)) > 300: 
+                      #          continue
+                      #      if 330 - (partial_sum + even[-1]) < 50:
+                      #          break
 
                             for even5 in even:
                                     if even1 >= even5 or even2 >= even5 or even3 >= even5 or even4 >= even5:
