@@ -229,8 +229,8 @@ def adv_subset_maker(st):
             if even1 >= even2:
                 continue
             for even3 in even:
-                    if even1 >= even3 or even3 >= even2:
-                            continue
+                    if even1 >= even3 or even2 >= even3:
+                        continue
                     # Stop here because three fixed points is a great pruning point (middle). 
                     # Check to see if the smallest/largest possible even4 and even5 are too big or 
                     # too small, and continue/break early to avoid unnecessary calculations
