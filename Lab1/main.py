@@ -154,7 +154,9 @@ U = {i for i in range(1, 61)}
 
 def adv_subset_maker(st):
 
-
+    # count of odds that are unused
+    count = 0
+    
     # Create variables needed.
     solutions = 0
     D_set = set()
@@ -208,6 +210,7 @@ def adv_subset_maker(st):
                             # largest possible odd_sum = 330 - 30 = 300
                             # We discard anything else
                             if odd_sum < 50 or odd_sum > 300:
+                               count += 1
                                continue
                         
                             group = (min(products_had(odd_product, 3), 3), 
@@ -222,7 +225,7 @@ def adv_subset_maker(st):
 
 
     # NOTE: GENERATE A LIST OF USABLE EVEN_SUMS
-    # 
+    
     for even1 in even:
         even_sum = 0
         for even2 in even:
@@ -231,29 +234,11 @@ def adv_subset_maker(st):
             for even3 in even:
                     if even1 >= even3 or even2 >= even3:
                         continue
-                    # Stop here because three fixed points is a great pruning point (middle). 
-                    # Check to see if the smallest/largest possible even4 and even5 are too big or 
-                    # too small, and continue/break early to avoid unnecessary calculations
-                        
-                   # partial_sum = even1 + even2 + even3
-
-                    #if 330 - (partial_sum + (even3 + 2) + (even3 + 4)) > 300: # Yes, this is hardcoded.
-                    #    continue # Even3 is too small, won't give a small enough oddsum. 
-                        
-                    #if 330 - (partial_sum + even[-2] + even[-1]) < 50:
-                    #    break # Even3 is too large, will give a too small odd_sum
 
                     for even4 in even:
                             if even1 >= even4 or even2 >= even4 or even3 >= even4:
                                 continue
 
-                            # Pruning Part 2.
-                     #       partial_sum = even1 + even2 + even3 + even4
-
-                     #       if 330 - (partial_sum + (even4 + 2)) > 300: 
-                      #          continue
-                      #      if 330 - (partial_sum + even[-1]) < 50:
-                      #          break
 
                             for even5 in even:
                                     if even1 >= even5 or even2 >= even5 or even3 >= even5 or even4 >= even5:
@@ -299,7 +284,7 @@ def adv_subset_maker(st):
                                             D_set.add(abs(even_sum - odd_sum))
     
     D_set = tuple(sorted(D_set))
-
+    print(count, "odd sums that are unused")
     return solutions, D_set, lex_min, lex_max
 
 def products_had(product, number):
